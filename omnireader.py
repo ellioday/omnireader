@@ -11,22 +11,27 @@ __maintainer__ = "Brecht Laperre"
 __email__ = "brecht.laperre@kuleuven.be"
 
 class Omniwebreader():
+    
     """Reads and parses data from the omniweb server
 
     The output of the list file is ready to be read in
     with the pandas read_csv function: read_csv(output.lst, delim_whitespace = True)
     """
+    
     def __init__(self):
         return
 
     def variables_info(self):
+        
         r"""Print variables info with corresponding index
         """
+        
         for ind, name in enumerate(var_names):
             print(ind, ":", name)
 
     def fetch_to_file(self, start: int, stop: int, variables: List[int],
                       output_file: str, style="pandas") -> None:
+        
         """Fetch data from omniweb and write it to a file
         Main function of the class.
 
@@ -42,6 +47,7 @@ class Omniwebreader():
             NOTICE: The first three columns of the .lst file
                     are the corresponding year, day and hour and are always included.
         """
+        
         if min(variables) < 0 or max(variables) > 55:
             print("Error, invalid parameters, \
                    please make sure the parameters are in range 0 to 55.")
@@ -55,7 +61,9 @@ class Omniwebreader():
         url = self._generate_url(start, stop, variables)
         self.parse_and_save(url, style, output_file)
 
-    def _generate_url(self, start: int, stop: int, variables: List[int], spacecraft="omni2") -> str:
+    @classmethod
+    def _generate_url(cls, start: int, stop: int, variables: List[int], spacecraft="omni2") -> str:
+        
         """Internal function generating url to omniweb server
         based on information from here: https://omniweb.gsfc.nasa.gov/html/command_line_sample.txt
         input:
@@ -66,7 +74,8 @@ class Omniwebreader():
         output:
             string containing the url necessary to pull the wanted data
         """
-        baseurl = "https://omniweb.sci.gsfc.nasa.gov/cgi/nx1.cgi?activity=retrieve&res=hour&spacecraft="
+        
+        baseurl = "https://omniweb.gsfc.nasa.gov/cgi/nx1.cgi?activity=retrieve&res=hour&spacecraft="
         timeperiod = "&start_date=" + str(start) + "&end_date=" + str(stop)
         varstring = ""
         for var in variables:
@@ -74,14 +83,18 @@ class Omniwebreader():
 
         return baseurl + spacecraft + timeperiod + varstring
 
-    def _download(self, url) -> str:
+    @classmethod
+    def _download(cls, url) -> str:
+        
         """Download file from url
         """
+        
         print("Downloading database...")
         response = get(url)
         return response.text
 
     def parse_and_save(self, url: str, style: str, output: str) -> None:
+        
         """Parses the returned html file from the download function
         input:
             url: url to omniweb database
@@ -89,6 +102,7 @@ class Omniwebreader():
         output:
             format and list file containing the metadata and data from omniweb
         """
+        
         data_counter = 0
         while data_counter < 2:
             data = self._download(url)
@@ -157,8 +171,10 @@ var_names = ["YEAR", "DOY", "Hour", "Bartels rotation number", "ID for IMF space
              "AL-index, nT", "AU-index, nT", "Magnetosonic Much num.", "Lyman_alpha"]
 
 class OmniHTMLParser(HTMLParser):
+    
     """Internal class needed to parse Omniweb HTML output
     """
+    
     def __init__(self):
         HTMLParser.__init__(self)
         self.recording = 0
